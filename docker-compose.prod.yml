@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: agendamento_postgres_prod
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-agendamento_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres123}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - agendamento_network_prod
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: agendamento_redis_prod
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - agendamento_network_prod
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: agendamento_backend_prod
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres123}@postgres:5432/${POSTGRES_DB:-agendamento_db}
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      FRONTEND_URL: ${FRONTEND_URL:-https://agenda.flowseven.online}
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - agendamento_network_prod
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: agendamento_frontend_prod
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    networks:
+      - agendamento_network_prod
+    restart: unless-stopped
+
+volumes:
+  postgres_data_prod:
+
+networks:
+  agendamento_network_prod:
+    driver: bridge

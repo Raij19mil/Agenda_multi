@@ -1,0 +1,30 @@
+{
+  "name": "agendamento-multitenancy",
+  "version": "1.0.0",
+  "description": "Sistema de agendamento multi-tenancy com temas personalizáveis",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "npm run start:backend",
+    "start:backend": "cd backend && npm run start:prod",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "init": "npm run init:backend",
+    "init:backend": "cd backend && npm install && npm run prisma:generate && npm run prisma:migrate && npm run init:superadmin",
+    "init:frontend": "cd frontend && npm install",
+    "init:all": "npm run init:backend && npm run init:frontend",
+    "setup": "npm install && npm run init:all"
+  },
+  "keywords": ["agendamento", "multitenancy", "react", "nestjs", "postgresql"],
+  "author": "Sistema de Agendamento",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
