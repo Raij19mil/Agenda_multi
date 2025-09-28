@@ -6,9 +6,8 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "npm install": "@nestjs/cli --save-dev",
     "preinstall": "npm cache clean --force",
-    "build": "nest build",
+    "build": "npx nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node dist/main.js",
     "start:dev": "npx nest start --watch",
