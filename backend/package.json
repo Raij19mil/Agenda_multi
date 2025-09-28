@@ -6,12 +6,11 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "preinstall": "npm cache clean --force",
-    "build": "npx nest build",
+    "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node dist/main.js",
-    "start:dev": "npx nest start --watch",
-    "start:debug": "npx nest start --debug --watch",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
@@ -56,6 +55,7 @@
   "devDependencies": {
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
+    "rimraf": "^5.0.0",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
