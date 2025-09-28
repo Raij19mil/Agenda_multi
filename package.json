@@ -21,10 +21,17 @@
     "init:all": "npm run init:backend && npm run init:frontend",
     "setup": "npm install && npm run init:all"
   },
-  "keywords": ["agendamento", "multitenancy", "react", "nestjs", "postgresql"],
+  "keywords": [
+    "agendamento",
+    "multitenancy",
+    "react",
+    "nestjs",
+    "postgresql"
+  ],
   "author": "Sistema de Agendamento",
   "license": "MIT",
   "devDependencies": {
+    "@nestjs/cli": "^11.0.10",
     "concurrently": "^8.2.2"
   }
 }
