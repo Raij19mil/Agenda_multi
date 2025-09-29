@@ -32,7 +32,7 @@ export class AppointmentsService {
     // Verificar conflitos de horário
     await this.checkTimeConflict(
       new Date(createAppointmentDto.startTime),
-      createAppointmentDto.endTime,
+new Date(createAppointmentDto.endTime),
       currentUser.tenantId,
       createAppointmentDto.userId || currentUser.id,
     );
@@ -173,7 +173,7 @@ export class AppointmentsService {
 
       await this.checkTimeConflict(
         typeof startTime === 'string' ? new Date(startTime) : startTime,
-        endTime,
+        typeof endTime === 'string' ? new Date(endTime) : endTime,
         currentUser.tenantId,
         appointment.userId,
         id,

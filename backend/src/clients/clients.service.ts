@@ -152,9 +152,6 @@ export class ClientsService {
       _count: {
         id: true,
       },
-      _sum: {
-  id: true
-},
     });
 
     const statusCounts = await this.prisma.appointment.groupBy({

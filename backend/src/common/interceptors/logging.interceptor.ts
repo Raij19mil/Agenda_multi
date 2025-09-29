@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { LogsService } from '../../logs/logs.service';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -31,22 +30,11 @@ export class LoggingInterceptor implements NestInterceptor {
           const action = this.getActionFromRequest(method, url);
           const entity = this.getEntityFromUrl(url);
 
-          await this.logsService.logUserAction(
-            action,
-            entity,
-            this.extractEntityId(url, body, data),
-            {
-              method,
-              url,
-              statusCode: response.statusCode,
-              requestBody: this.sanitizeBody(body),
-              responseData: this.sanitizeResponse(data),
-            },
-            user.tenantId,
-            user.id,
-            ip,
-            userAgent,
-          );
+          
+            
+            
+            
+          
         } catch (error) {
           // Não falhar a requisição se o log falhar
           console.error('Erro ao registrar log:', error);

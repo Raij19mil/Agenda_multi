@@ -9,7 +9,6 @@ import { UsersModule } from './users/users.module';
 import { ClientsModule } from './clients/clients.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ThemesModule } from './themes/themes.module';
-import { LogsModule } from './logs/logs.module';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 @Module({
@@ -31,7 +30,6 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
     ClientsModule,
     AppointmentsModule,
     ThemesModule,
-    LogsModule,
   ],
   providers: [
     {
