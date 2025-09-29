@@ -153,8 +153,8 @@ export class ClientsService {
         id: true,
       },
       _sum: {
-        // Aqui você pode adicionar campos numéricos se necessário
-      },
+  id: true
+},
     });
 
     const statusCounts = await this.prisma.appointment.groupBy({

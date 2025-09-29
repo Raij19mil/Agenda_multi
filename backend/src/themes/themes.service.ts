@@ -99,10 +99,10 @@ export class ThemesService {
     const theme = this.predefinedThemes[themeName] || this.predefinedThemes.default;
 
     // Mesclar com configurações personalizadas do tenant
-    if (tenant.settings && tenant.settings.theme) {
+    if (tenant.settings && typeof tenant.settings === 'object' && 'theme' in tenant.settings) {
       return {
         ...theme,
-        ...tenant.settings.theme,
+        ...tenant.settings,
       };
     }
 

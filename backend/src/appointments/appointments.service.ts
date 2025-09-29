@@ -3,7 +3,7 @@ import { PrismaService } from '../database/prisma.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { UserRole, AppointmentStatus } from '@prisma/client';
-import * as moment from 'moment';
+import moment from 'moment';
 
 @Injectable()
 export class AppointmentsService {
@@ -31,7 +31,7 @@ export class AppointmentsService {
 
     // Verificar conflitos de horário
     await this.checkTimeConflict(
-      createAppointmentDto.startTime,
+      new Date(createAppointmentDto.startTime),
       createAppointmentDto.endTime,
       currentUser.tenantId,
       createAppointmentDto.userId || currentUser.id,
@@ -172,7 +172,7 @@ export class AppointmentsService {
       const endTime = updateAppointmentDto.endTime || appointment.endTime;
 
       await this.checkTimeConflict(
-        startTime,
+        typeof startTime === 'string' ? new Date(startTime) : startTime,
         endTime,
         currentUser.tenantId,
         appointment.userId,
