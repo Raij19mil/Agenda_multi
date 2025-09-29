@@ -9,7 +9,7 @@ import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-  constructor(private logsService: LogsService) {}
+  constructor() {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
@@ -30,11 +30,35 @@ export class LoggingInterceptor implements NestInterceptor {
           const action = this.getActionFromRequest(method, url);
           const entity = this.getEntityFromUrl(url);
 
+          // COMENTAR OU REMOVER ESTE BLOCO:
+          /*
+          await this.logsService.logUserAction(
+            action,
+            entity,
+            this.extractEntityId(url, body, data),
+            {
+              method,
+              url,
+              statusCode: response.statusCode,
+              requestBody: this.sanitizeBody(body),
+              responseData: this.sanitizeResponse(data),
+            },
+            user.tenantId,
+            user.id,
+            ip,
+            userAgent,
+          );
+          */
           
-            
-            
-            
-          
+          // Substituir por console.log temporariamente:
+          console.log('Action logged:', {
+            action,
+            entity,
+            userId: user.id,
+            tenantId: user.tenantId,
+            method,
+            url,
+          });
         } catch (error) {
           // Não falhar a requisição se o log falhar
           console.error('Erro ao registrar log:', error);
@@ -58,7 +82,6 @@ export class LoggingInterceptor implements NestInterceptor {
   private getEntityFromUrl(url: string): string {
     const segments = url.split('/').filter(Boolean);
     
-    // Remover parâmetros de query e IDs
     const entity = segments.find(segment => 
       ['tenants', 'users', 'clients', 'appointments', 'themes', 'logs'].includes(segment)
     );
@@ -67,18 +90,15 @@ export class LoggingInterceptor implements NestInterceptor {
   }
 
   private extractEntityId(url: string, body: any, responseData: any): string | undefined {
-    // Tentar extrair ID da URL
     const urlMatch = url.match(/\/([a-f0-9-]{36})/);
     if (urlMatch) {
       return urlMatch[1];
     }
 
-    // Tentar extrair ID do body
     if (body && body.id) {
       return body.id;
     }
 
-    // Tentar extrair ID da resposta
     if (responseData && responseData.id) {
       return responseData.id;
     }
@@ -91,7 +111,6 @@ export class LoggingInterceptor implements NestInterceptor {
 
     const sanitized = { ...body };
     
-    // Remover campos sensíveis
     delete sanitized.password;
     delete sanitized.token;
     delete sanitized.secret;
@@ -102,12 +121,10 @@ export class LoggingInterceptor implements NestInterceptor {
   private sanitizeResponse(responseData: any): any {
     if (!responseData) return responseData;
 
-    // Se for um array, limitar a 10 itens
     if (Array.isArray(responseData)) {
       return responseData.slice(0, 10);
     }
 
-    // Se for um objeto, remover campos sensíveis
     if (typeof responseData === 'object') {
       const sanitized = { ...responseData };
       delete sanitized.password;
