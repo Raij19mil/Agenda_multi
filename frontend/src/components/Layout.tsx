@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import { useAuth } from '../contexts/AuthContext'
+// import { useAuth } from '../contexts/AuthContext'
 import Sidebar from './Sidebar'
 import Header from './Header'
 
@@ -8,7 +8,6 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { user } = useAuth()
 
   return (
     <div className="min-h-screen bg-background">

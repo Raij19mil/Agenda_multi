@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Calendar as BigCalendar, momentLocalizer } from 'react-big-calendar'
+import { Calendar as BigCalendar, momentLocalizer, View } from 'react-big-calendar' // ← adicionado View
 import { useQuery } from 'react-query'
 import { appointmentService } from '../services/appointmentService'
 import moment from 'moment'
@@ -11,6 +11,17 @@ const localizer = momentLocalizer(moment)
 const Calendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [currentView, setCurrentView] = useState<'month' | 'week' | 'day' | 'agenda'>('month')
+
+  // ✅ Função de adaptação para o onView
+  const handleViewChange = (view: View) => {
+    if (view === 'month' || view === 'week' || view === 'day' || view === 'agenda') {
+      setCurrentView(view)
+    }
+    // Opcional: tratar "work_week" como "week"
+    // else if (view === 'work_week') {
+    //   setCurrentView('week')
+    // }
+  }
 
   const { data: appointments, isLoading } = useQuery(
     ['calendar', currentDate.getMonth() + 1, currentDate.getFullYear()],
@@ -123,7 +134,7 @@ const Calendar: React.FC = () => {
             startAccessor="start"
             endAccessor="end"
             view={currentView}
-            onView={setCurrentView}
+            onView={handleViewChange} // ✅ Alterado aqui!
             date={currentDate}
             onNavigate={setCurrentDate}
             eventPropGetter={eventStyleGetter}

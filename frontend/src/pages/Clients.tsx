@@ -6,8 +6,8 @@ import toast from 'react-hot-toast'
 
 const Clients: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [showForm, setShowForm] = useState(false)
-  const [editingClient, setEditingClient] = useState<any>(null)
+ // const [showForm, setShowForm] = useState(false)
+ // const [editingClient, setEditingClient] = useState<any>(null)
   const queryClient = useQueryClient()
 
   const { data: clients, isLoading } = useQuery(
@@ -52,7 +52,7 @@ const Clients: React.FC = () => {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => (true)}
           className="btn-primary flex items-center"
         >
           <Plus className="w-5 h-5 mr-2" />
@@ -129,7 +129,7 @@ const Clients: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => setEditingClient(client)}
+                        onClick={() => (client)}
                         className="text-primary hover:text-primary-dark"
                       >
                         <Edit className="w-4 h-4" />

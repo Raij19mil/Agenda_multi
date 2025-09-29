@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { Plus, Search, Edit, Trash2, Building2, Users, Calendar, Settings } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Building2, Users, Calendar } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const Tenants: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [showForm, setShowForm] = useState(false)
-  const [editingTenant, setEditingTenant] = useState<any>(null)
+  const [, setShowForm] = useState(false)
+  const [, setEditingTenant] = useState<any>(null)
   const queryClient = useQueryClient()
 
   // Mock data - substitua pela chamada real da API
@@ -46,7 +46,7 @@ const Tenants: React.FC = () => {
   )
 
   const deleteMutation = useMutation(
-    (id: string) => Promise.resolve(),
+    (_id: string) => Promise.resolve(),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('tenants')

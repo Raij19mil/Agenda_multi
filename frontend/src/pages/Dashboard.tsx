@@ -1,7 +1,7 @@
 import React from 'react'
 import { useQuery } from 'react-query'
 import { appointmentService } from '../services/appointmentService'
-import { Calendar, Users, CheckCircle, Clock } from 'lucide-react'
+import { Calendar, CheckCircle, Clock } from 'lucide-react'
 
 const Dashboard: React.FC = () => {
   const { data: stats, isLoading } = useQuery(

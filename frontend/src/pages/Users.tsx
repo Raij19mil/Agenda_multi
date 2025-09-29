@@ -5,8 +5,8 @@ import toast from 'react-hot-toast'
 
 const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [showForm, setShowForm] = useState(false)
-  const [editingUser, setEditingUser] = useState<any>(null)
+  const [, setShowForm] = useState(false)
+  const [, setEditingUser] = useState<any>(null)
   const queryClient = useQueryClient()
 
   // Mock data - substitua pela chamada real da API
@@ -29,7 +29,7 @@ const Users: React.FC = () => {
   )
 
   const deleteMutation = useMutation(
-    (id: string) => Promise.resolve(),
+    (_id: string) => Promise.resolve(),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('users')

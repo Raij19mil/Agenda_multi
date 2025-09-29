@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
-import { Save, Palette, User, Shield, Bell } from 'lucide-react'
+import { Palette, User, Shield, Bell } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const Settings: React.FC = () => {
   const { user } = useAuth()
   const { theme, updateTheme } = useTheme()
   const [selectedTheme, setSelectedTheme] = useState(theme?.name || 'default')
-  const [loading, setLoading] = useState(false)
+  const [,setLoading] = useState(false)
 
   const availableThemes = [
     { key: 'barbearia', name: 'Barbearia', description: 'Tema verde escuro para barbearias' },

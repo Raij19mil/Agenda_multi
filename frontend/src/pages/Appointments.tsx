@@ -9,8 +9,8 @@ import { ptBR } from 'date-fns/locale'
 const Appointments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
-  const [showForm, setShowForm] = useState(false)
-  const [editingAppointment, setEditingAppointment] = useState<any>(null)
+ // talvez vou usar depois const [showForm, setShowForm] = useState(false)
+  // const [editingAppointment, setEditingAppointment] = useState<any>(null)
   const queryClient = useQueryClient()
 
   const { data: appointments, isLoading } = useQuery(
@@ -79,7 +79,7 @@ const Appointments: React.FC = () => {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => (true)}
           className="btn-primary flex items-center"
         >
           <Plus className="w-5 h-5 mr-2" />
@@ -181,7 +181,7 @@ const Appointments: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => setEditingAppointment(appointment)}
+                        onClick={() => (appointment)}
                         className="text-primary hover:text-primary-dark"
                       >
                         <Edit className="w-4 h-4" />
