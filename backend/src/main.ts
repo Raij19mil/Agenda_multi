@@ -8,7 +8,7 @@ async function bootstrap() {
 
   // Configuração de CORS
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || ['http://localhost:3000','https://agenda-multi-1.onrender.com'],
     credentials: true,
   });
 
