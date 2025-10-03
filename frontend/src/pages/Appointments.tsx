@@ -9,7 +9,7 @@ import { ptBR } from 'date-fns/locale'
 const Appointments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
- // talvez vou usar depois const [showForm, setShowForm] = useState(false)
+  // const [showForm, setShowForm] = useState(false)
   // const [editingAppointment, setEditingAppointment] = useState<any>(null)
   const queryClient = useQueryClient()
 

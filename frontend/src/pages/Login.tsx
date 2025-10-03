@@ -35,7 +35,7 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-text">Sistema de Agendamento</h2>
+          <h2 className="text-3xl font-bold text-text">Seven Agendamento</h2>
           <p className="mt-2 text-text-secondary">
             Faça login para acessar sua conta
           </p>
@@ -49,7 +49,7 @@ const Login: React.FC = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-text-secondary" />
+                 <Mail className="h-5 w-5 text-text-secondary" />
                 </div>
                 <input
                   id="email"
@@ -85,7 +85,7 @@ const Login: React.FC = () => {
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
+                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-text-secondary" />
