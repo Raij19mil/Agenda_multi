@@ -44,7 +44,13 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Renovar token de acesso' })
   @ApiResponse({ status: 200, description: 'Token renovado com sucesso' })
-  async refreshToken(@Request() req) {
+  async ken(refreshTo@Request() req) {
+    return this.authService.refreshToken(req.user);
+  }
+  @Post('refresh')
+  @ApiOperation({ summary: 'Renovar token JWT' })
+  @ApiResponse({ status: 200, description: 'Token renovado com sucesso' })
+  async refresh(@Request() req) {
     return this.authService.refreshToken(req.user);
   }
 }

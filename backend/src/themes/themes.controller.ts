@@ -28,10 +28,10 @@ export class ThemesController {
     return this.themesService.getThemeByTenantId(tenantId);
   }
 
-  @Get('current')
+  @Get('tenantId')
   @ApiOperation({ summary: 'Obter tema do tenant atual' })
   @ApiResponse({ status: 200, description: 'Tema obtido com sucesso' })
-  getCurrentTheme(@Request() req) {
+  gettenantIdTheme(@Request() req) {
     return this.themesService.getThemeByTenantId(req.user.tenantId);
   }
 
