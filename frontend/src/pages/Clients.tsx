@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
+import ClientForm from '../components/ClientForm'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { clientService } from '../services/clientService'
 import { Plus, Search, Edit, Trash2, Phone, Mail, Users } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-interface Client {
+interface ClientType {
   id: string
   name: string
   email?: string
@@ -16,10 +17,10 @@ interface Client {
 const Clients: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [showForm, setShowForm] = useState(false)
-  const [editingClient, setEditingClient] = useState<Client | null>(null)
+  const [editingClient, setEditingClient] = useState<ClientType | null>(null)
   const queryClient = useQueryClient()
 
-  const { data: clients, isLoading } = useQuery<Client[]>(
+  const { data: clients, isLoading } = useQuery<ClientType[]>(
     ['clients', searchTerm],
     () => clientService.getClients(searchTerm),
     {
@@ -27,15 +28,55 @@ const Clients: React.FC = () => {
     }
   )
 
-  const deleteMutation = useMutation(clientService.deleteClient, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('clients')
-      toast.success('Cliente removido com sucesso!')
-    },
-    onError: () => {
-      toast.error('Erro ao remover cliente!')
-    },
-  })
+  const createMutation = useMutation(
+    (data: Omit<ClientType, 'id'>) => clientService.createClient(data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('clients')
+        toast.success('Cliente criado com sucesso!')
+        setShowForm(false)
+      },
+      onError: () => {
+        toast.error('Erro ao criar cliente!')
+      },
+    }
+  )
+
+  const updateMutation = useMutation(
+    (variables: { id: string; data: Omit<ClientType, 'id'> }) => clientService.updateClient(variables.id, variables.data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('clients')
+        toast.success('Cliente atualizado com sucesso!')
+        setShowForm(false)
+      },
+      onError: () => {
+        toast.error('Erro ao atualizar cliente!')
+      },
+    }
+  )
+
+
+  function handleSaveClient(data: Omit<ClientType, 'id'>) {
+    if (editingClient) {
+      updateMutation.mutate({ id: editingClient.id, data })
+    } else {
+      createMutation.mutate(data)
+    }
+  }
+
+  const deleteMutation = useMutation(
+    (id: string) => clientService.deleteClient(id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('clients')
+        toast.success('Cliente removido com sucesso!')
+      },
+      onError: () => {
+        toast.error('Erro ao remover cliente!')
+      },
+    }
+  )
 
   const handleDelete = (id: string) => {
     if (window.confirm('Tem certeza que deseja remover este cliente?')) {
@@ -43,7 +84,7 @@ const Clients: React.FC = () => {
     }
   }
 
-  const handleEdit = (client: Client) => {
+  const handleEdit = (client: ClientType) => {
     setEditingClient(client)
     setShowForm(true)
   }
@@ -62,7 +103,16 @@ const Clients: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <>
+      {showForm && (
+        <ClientForm
+          client={editingClient}
+          onClose={() => setShowForm(false)}
+          onSave={handleSaveClient}
+          loading={createMutation.isLoading || updateMutation.isLoading}
+        />
+      )}
+      <div className="space-y-6 p-4 md:p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -237,6 +287,7 @@ const Clients: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   )
 }
 
