@@ -31,7 +31,7 @@ export class ThemesController {
   @Get('tenantId')
   @ApiOperation({ summary: 'Obter tema do tenant atual' })
   @ApiResponse({ status: 200, description: 'Tema obtido com sucesso' })
-  gettenantIdTheme(@Request() req) {
+  getTenantIdTheme(@Request() req) {
     return this.themesService.getThemeByTenantId(req.user.tenantId);
   }
 
