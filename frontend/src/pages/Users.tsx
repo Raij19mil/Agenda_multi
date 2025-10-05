@@ -2,41 +2,56 @@ import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { Plus, Search, Edit, Trash2, User, Mail, Shield } from 'lucide-react'
 import toast from 'react-hot-toast'
+import UserForm from '../components/UserForm'
+import { userService } from '../services/userService'
 
 const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [, setShowForm] = useState(false)
-  const [, setEditingUser] = useState<any>(null)
+  const [showForm, setShowForm] = useState(false)
+  const [editingUser, setEditingUser] = useState<any>(null)
   const queryClient = useQueryClient()
 
-  // Mock data - substitua pela chamada real da API
-  const { data: users, isLoading } = useQuery(
-    ['users', searchTerm],
-    () => Promise.resolve([
-      {
-        id: '1',
-        name: 'João Silva',
-        email: 'joao@barbearia.com',
-        role: 'ADMIN',
-        isActive: true,
-        createdAt: '2024-01-01',
-        tenant: { name: 'Barbearia do João' }
-      }
-    ]),
+  const { data: users, isLoading } = useQuery(['users', searchTerm], () => userService.getUsers(searchTerm))
+
+  const createMutation = useMutation(
+    (data: any) => userService.createUser(data),
     {
-      enabled: true,
+      onSuccess: () => {
+        queryClient.invalidateQueries('users')
+        toast.success('Usuário criado com sucesso!')
+        setShowForm(false)
+        setEditingUser(null)
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Erro ao criar usuário!')
+      },
+    }
+  )
+
+  const updateMutation = useMutation(
+    (variables: { id: string; data: any }) => userService.updateUser(variables.id, variables.data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('users')
+        toast.success('Usuário atualizado com sucesso!')
+        setShowForm(false)
+        setEditingUser(null)
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Erro ao atualizar usuário!')
+      },
     }
   )
 
   const deleteMutation = useMutation(
-    (_id: string) => Promise.resolve(),
+    (id: string) => userService.deleteUser(id),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('users')
         toast.success('Usuário removido com sucesso!')
       },
-      onError: () => {
-        toast.error('Erro ao remover usuário!')
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Erro ao remover usuário!')
       },
     }
   )
@@ -156,7 +171,7 @@ const Users: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-text">{user.tenant?.name}</div>
+                    <div className="text-sm text-text">{user.tenantId}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -198,6 +213,23 @@ const Users: React.FC = () => {
           <h3 className="text-lg font-medium text-text mb-2">Nenhum usuário encontrado</h3>
           <p className="text-text-secondary">
             {searchTerm ? 'Tente ajustar os termos de busca.' : 'Comece adicionando seu primeiro usuário.'}
+      {showForm && (
+        <UserForm
+          user={editingUser}
+          onClose={() => {
+            setShowForm(false)
+            setEditingUser(null)
+          }}
+          onSave={(data) => {
+            if (editingUser) {
+              updateMutation.mutate({ id: editingUser.id, data })
+            } else {
+              createMutation.mutate(data)
+            }
+          }}
+          loading={createMutation.isLoading || updateMutation.isLoading}
+        />
+      )}
           </p>
         </div>
       )}
