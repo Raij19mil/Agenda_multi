@@ -1,59 +1,57 @@
 import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import TenantForm from '../components/TenantForm'
 import { Plus, Search, Edit, Trash2, Building2, Users, Calendar } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { tenantService } from '../services/tenantService'
 
 const Tenants: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [, setShowForm] = useState(false)
-  const [, setEditingTenant] = useState<any>(null)
+  const [showForm, setShowForm] = useState(false)
+  const [editingTenant, setEditingTenant] = useState<any>(null)
   const queryClient = useQueryClient()
 
-  // Mock data - substitua pela chamada real da API
-  const { data: tenants, isLoading } = useQuery(
-    ['tenants', searchTerm],
-    () => Promise.resolve([
-      {
-        id: '1',
-        name: 'Barbearia do João',
-        slug: 'barbearia-joao',
-        theme: 'barbearia',
-        isActive: true,
-        createdAt: '2024-01-01',
-        _count: {
-          users: 3,
-          clients: 45,
-          appointments: 120
-        }
-      },
-      {
-        id: '2',
-        name: 'Salão da Maria',
-        slug: 'salao-maria',
-        theme: 'salao',
-        isActive: true,
-        createdAt: '2024-01-15',
-        _count: {
-          users: 2,
-          clients: 30,
-          appointments: 85
-        }
-      }
-    ]),
+  const { data: tenants, isLoading } = useQuery(['tenants', searchTerm], () => tenantService.getTenants(searchTerm))
+
+  const createMutation = useMutation(
+    (data: any) => tenantService.createTenant(data),
     {
-      enabled: true,
+      onSuccess: () => {
+        queryClient.invalidateQueries('tenants')
+        toast.success('Tenant criado com sucesso!')
+        setShowForm(false)
+        setEditingTenant(null)
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Erro ao criar tenant!')
+      },
+    }
+  )
+
+  const updateMutation = useMutation(
+    (variables: { id: string; data: any }) => tenantService.updateTenant(variables.id, variables.data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('tenants')
+        toast.success('Tenant atualizado com sucesso!')
+        setShowForm(false)
+        setEditingTenant(null)
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Erro ao atualizar tenant!')
+      },
     }
   )
 
   const deleteMutation = useMutation(
-    (_id: string) => Promise.resolve(),
+    (id: string) => tenantService.deleteTenant(id),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('tenants')
         toast.success('Tenant removido com sucesso!')
       },
-      onError: () => {
-        toast.error('Erro ao remover tenant!')
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Erro ao remover tenant!')
       },
     }
   )
@@ -61,6 +59,14 @@ const Tenants: React.FC = () => {
   const handleDelete = (id: string) => {
     if (window.confirm('Tem certeza que deseja remover este tenant?')) {
       deleteMutation.mutate(id)
+    }
+  }
+
+  function handleSaveTenant(data: any) {
+    if (editingTenant) {
+      updateMutation.mutate({ id: editingTenant.id, data })
+    } else {
+      createMutation.mutate(data)
     }
   }
 
@@ -102,7 +108,10 @@ const Tenants: React.FC = () => {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            setEditingTenant(null)
+            setShowForm(true)
+          }}
           className="btn-primary flex items-center"
         >
           <Plus className="w-5 h-5 mr-2" />
@@ -181,7 +190,10 @@ const Tenants: React.FC = () => {
               </span>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => setEditingTenant(tenant)}
+                  onClick={() => {
+                    setEditingTenant(tenant)
+                    setShowForm(true)
+                  }}
                   className="text-primary hover:text-primary-dark"
                 >
                   <Edit className="w-4 h-4" />
@@ -206,6 +218,17 @@ const Tenants: React.FC = () => {
             {searchTerm ? 'Tente ajustar os termos de busca.' : 'Comece criando seu primeiro tenant.'}
           </p>
         </div>
+      )}
+
+      {showForm && (
+        <TenantForm
+          tenant={editingTenant}
+          onClose={() => {
+            setShowForm(false)
+            setEditingTenant(null)
+          }}
+          onSave={handleSaveTenant}
+        />
       )}
     </div>
   )

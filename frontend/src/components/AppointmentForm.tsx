@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { clientService } from '../services/clientService'
+import { Client } from '../types'
 
 interface AppointmentFormProps {
   appointment: AppointmentType | null
@@ -22,12 +24,15 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [clientId, setClientId] = useState('')
+  const [clients, setClients] = useState<Client[]>([])
   const [userId, setUserId] = useState('')
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [status, setStatus] = useState('SCHEDULED')
 
   useEffect(() => {
+    // Buscar clientes ao abrir o formulário
+    clientService.getClients().then(setClients)
     if (appointment) {
       setTitle(appointment.title || '')
       setDescription(appointment.description || '')
@@ -85,14 +90,18 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Cliente ID *</label>
-            <input
-              type="text"
+            <label className="block text-sm font-medium text-gray-700">Cliente *</label>
+            <select
               className="form-input mt-1 block w-full"
               value={clientId}
               onChange={e => setClientId(e.target.value)}
               required
-            />
+            >
+              <option value="">Selecione um cliente</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>{c.name} - {c.phone}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Usuário Responsável ID *</label>
