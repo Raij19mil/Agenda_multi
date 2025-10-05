@@ -1,17 +1,56 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { appointmentService } from '../services/appointmentService'
+import { CreateAppointmentRequest } from '../types'
 import { Plus, Search, Edit, Trash2, Calendar, Clock, User } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import AppointmentForm from '../components/AppointmentForm'
 
 const Appointments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
-  // const [showForm, setShowForm] = useState(false)
-  // const [editingAppointment, setEditingAppointment] = useState<any>(null)
+  const [showForm, setShowForm] = useState(false)
+  const [editingAppointment, setEditingAppointment] = useState<any>(null)
+
   const queryClient = useQueryClient()
+
+  const createMutation = useMutation(
+    (data: CreateAppointmentRequest) => appointmentService.createAppointment(data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('appointments')
+        toast.success('Agendamento criado com sucesso!')
+        setShowForm(false)
+      },
+      onError: () => {
+        toast.error('Erro ao criar agendamento!')
+      },
+    }
+  )
+
+  const updateMutation = useMutation(
+    (variables: { id: string; data: CreateAppointmentRequest }) => appointmentService.updateAppointment(variables.id, variables.data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('appointments')
+        toast.success('Agendamento atualizado com sucesso!')
+        setShowForm(false)
+      },
+      onError: () => {
+        toast.error('Erro ao atualizar agendamento!')
+      },
+    }
+  )
+
+  function handleSaveAppointment(data: CreateAppointmentRequest) {
+    if (editingAppointment) {
+      updateMutation.mutate({ id: editingAppointment.id, data })
+    } else {
+      createMutation.mutate(data)
+    }
+  }
 
   const { data: appointments, isLoading } = useQuery(
     ['appointments', { search: searchTerm, status: statusFilter }],
@@ -68,7 +107,14 @@ const Appointments: React.FC = () => {
       </div>
     )
   }
-
+{showForm && (
+  <AppointmentForm
+    appointment={editingAppointment}
+    onClose={() => setShowForm(false)}
+    onSave={handleSaveAppointment}
+    loading={createMutation.isLoading || updateMutation.isLoading}
+  />
+)}
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -79,11 +125,14 @@ const Appointments: React.FC = () => {
           </p>
         </div>
         <button
-          onClick={() => (true)}
-          className="btn-primary flex items-center"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Novo Agendamento
+          onClick={() => {
+          setEditingAppointment(null)
+           setShowForm(true)
+    }}
+             className="btn-primary flex items-center"
+         >
+         <Plus className="w-5 h-5 mr-2" />
+         Novo Agendamento
         </button>
       </div>
 
@@ -181,11 +230,14 @@ const Appointments: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => (appointment)}
-                        className="text-primary hover:text-primary-dark"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
+  onClick={() => {
+    setEditingAppointment(appointment)
+    setShowForm(true)
+  }}
+  className="text-primary hover:text-primary-dark"
+>
+  <Edit className="w-4 h-4" />
+</button>
                       <button
                         onClick={() => handleDelete(appointment.id)}
                         className="text-error hover:text-error-dark"
