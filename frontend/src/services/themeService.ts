@@ -17,13 +17,13 @@ export const themeService = {
     return response.data
   },
 
-  async updateTheme(themeName: string, customSettings?: any): Promise<Theme> {
-  const response = await api.post(`/themes/tenant`, {
-    themeName,
-    customSettings,
-  });
-  return response.data;
-},
+  async updateTheme(tenantId: string, themeName: string, customSettings?: any): Promise<Theme> {
+    const response = await api.post(`/themes/tenant/${tenantId}`, {
+      themeName,
+      customSettings,
+    });
+    return response.data;
+  },
 
   async getThemeCSS(tenantId: string): Promise<{ css: string; theme: Theme }> {
     const response = await api.get(`/themes/css/${tenantId}`);
