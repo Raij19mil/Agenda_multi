@@ -87,6 +87,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
           ×
         </button>
         <h2 className="text-xl font-bold mb-4">{appointment ? 'Editar Agendamento' : 'Novo Agendamento'}</h2>
+        {users.length === 0 ? (
+          <div className="text-red-600 font-semibold mb-4">Nenhum usuário disponível para seleção. Verifique se há usuários ativos no sistema.</div>
+        ) : null}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Título *</label>
@@ -185,7 +188,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
             <button
               type="submit"
               className="btn-primary"
-              disabled={loading}
+              disabled={loading || users.length === 0}
             >
               {loading ? 'Salvando...' : 'Salvar'}
             </button>
