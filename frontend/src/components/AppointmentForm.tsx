@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { User } from '../types'
 import { clientService } from '../services/clientService'
 import { Client } from '../types'
 
@@ -26,13 +27,17 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
   const [clientId, setClientId] = useState('')
   const [clients, setClients] = useState<Client[]>([])
   const [userId, setUserId] = useState('')
+  const [users, setUsers] = useState<User[]>([])
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [status, setStatus] = useState('SCHEDULED')
 
   useEffect(() => {
-    // Buscar clientes ao abrir o formulário
+    // Buscar clientes e usuários ao abrir o formulário
     clientService.getClients().then(setClients)
+    import('../services/userService').then(({ userService }) => {
+      userService.getUsers().then(setUsers)
+    })
     if (appointment) {
       setTitle(appointment.title || '')
       setDescription(appointment.description || '')
@@ -104,14 +109,18 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Usuário Responsável ID *</label>
-            <input
-              type="text"
+            <label className="block text-sm font-medium text-gray-700">Usuário Responsável *</label>
+            <select
               className="form-input mt-1 block w-full"
               value={userId}
               onChange={e => setUserId(e.target.value)}
               required
-            />
+            >
+              <option value="">Selecione um usuário</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+              ))}
+            </select>
           </div>
           <div className="flex gap-2">
             <div className="flex-1">

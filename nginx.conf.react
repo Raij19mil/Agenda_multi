@@ -1,0 +1,21 @@
+# Exemplo de configuração Nginx para servir o build do React diretamente
+# Salve como nginx.conf e ajuste o caminho do root conforme seu ambiente
+
+server {
+    listen 80;
+    server_name seu-dominio.com;
+
+    root /caminho/para/seu/frontend/dist;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Servir arquivos estáticos com cache
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri $uri/ /index.html;
+    }
+}
