@@ -112,12 +112,6 @@ const Appointments: React.FC = () => {
     return texts[status as keyof typeof texts] || status
   }
 
-  // Debounce the search term to avoid too many requests
-  const debouncedSetSearchTerm = debounce((value: string) => {
-    setSearchTerm(value)
-  }, 300)
-
-
     if (isLoading) {
       return (
         <div className="flex items-center justify-center h-64">
