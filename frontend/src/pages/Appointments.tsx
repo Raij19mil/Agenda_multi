@@ -24,8 +24,9 @@ const Appointments: React.FC = () => {
         toast.success('Agendamento criado com sucesso!')
         setShowForm(false)
       },
-      onError: () => {
-        toast.error('Erro ao criar agendamento!')
+      onError: (error: any) => {
+        const msg = error?.response?.data?.message || 'Erro ao criar agendamento!'
+        toast.error(msg)
       },
     }
   )
