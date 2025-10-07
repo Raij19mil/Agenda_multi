@@ -23,10 +23,6 @@ interface AppointmentType {
 }
 
 const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose, onSave, loading }) => {
-  // Garantir que currentUser só seja declarado uma vez
-  const { user: currentUser } = useAuth()
-  // Importa contexto de autenticação
-  import { useAuth } from '../contexts/AuthContext'
   const { user: currentUser } = useAuth()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
