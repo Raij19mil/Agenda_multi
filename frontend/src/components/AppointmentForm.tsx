@@ -38,7 +38,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
     // Buscar clientes e usuários ao abrir o formulário
     clientService.getClients().then(setClients)
     import('../services/userService').then(({ userService }) => {
-      userService.getUsers().then(setUsers)
+      userService.getUsers().then((userList) => {
+        setUsers(userList)
+        // Se não estiver editando e userId está vazio, seleciona o primeiro usuário
+        if (!appointment && !userId && userList.length > 0) {
+          setUserId(userList[0].id)
+        }
+      })
     })
     if (appointment) {
       setTitle(appointment.title || '')
