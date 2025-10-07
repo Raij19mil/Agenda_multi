@@ -25,7 +25,17 @@ const Appointments: React.FC = () => {
         setShowForm(false)
       },
       onError: (error: any) => {
-        const msg = error?.response?.data?.message || 'Erro ao criar agendamento!'
+        const data = error?.response?.data
+        let msg = 'Erro ao criar agendamento!'
+        if (typeof data === 'string') {
+          msg = data
+        } else if (Array.isArray(data?.message)) {
+          msg = data.message.join(' | ')
+        } else if (data?.message) {
+          msg = data.message
+        } else if (data?.messages) {
+          msg = Array.isArray(data.messages) ? data.messages.join(' | ') : data.messages
+        }
         toast.error(msg)
       },
     }
