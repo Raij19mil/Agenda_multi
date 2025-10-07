@@ -59,6 +59,12 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    // Regex simples para validar UUID v4
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(userId)) {
+      alert('Selecione um usuário responsável válido.')
+      return
+    }
     onSave({ title, description, clientId, userId, startTime, endTime, status })
   }
 
