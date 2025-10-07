@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { appointmentService } from '../services/appointmentService'
 import { CreateAppointmentRequest } from '../types'
@@ -11,7 +11,7 @@ import AppointmentForm from '../components/AppointmentForm'
 const Appointments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState<boolean>(false)
   const [editingAppointment, setEditingAppointment] = useState<any>(null)
 
   const queryClient = useQueryClient()
@@ -25,6 +25,7 @@ const Appointments: React.FC = () => {
         setShowForm(false)
       },
       onError: (error: any) => {
+        console.error('Erro ao criar agendamento:', error)
         const data = error?.response?.data
         let msg = 'Erro ao criar agendamento!'
         if (typeof data === 'string') {
@@ -111,6 +112,12 @@ const Appointments: React.FC = () => {
     return texts[status as keyof typeof texts] || status
   }
 
+  // Debounce the search term to avoid too many requests
+  const debouncedSetSearchTerm = debounce((value: string) => {
+    setSearchTerm(value)
+  }, 300)
+
+
     if (isLoading) {
       return (
         <div className="flex items-center justify-center h-64">
@@ -159,7 +166,7 @@ const Appointments: React.FC = () => {
                 placeholder="Buscar agendamentos..."
                 className="form-input pl-10"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => debouncedSetSearchTerm(e.target.value)}
               />
             </div>
             <select
