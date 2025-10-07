@@ -9,7 +9,7 @@ import { ptBR } from 'date-fns/locale'
 import AppointmentForm from '../components/AppointmentForm'
 
 const Appointments: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, ] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [showForm, setShowForm] = useState<boolean>(false)
   const [editingAppointment, setEditingAppointment] = useState<any>(null)
@@ -160,7 +160,6 @@ const Appointments: React.FC = () => {
                 placeholder="Buscar agendamentos..."
                 className="form-input pl-10"
                 value={searchTerm}
-                onChange={(e) => debouncedSetSearchTerm(e.target.value)}
               />
             </div>
             <select
