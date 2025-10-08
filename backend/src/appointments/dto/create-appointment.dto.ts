@@ -61,10 +61,10 @@ export class CreateAppointmentDto {
 
   @ApiProperty({ 
     description: 'ID do usuário responsável (opcional, usa o usuário logado se não informado)',
-    example: 'uuid-do-usuario',
+    example: '111',
     required: false
   })
   @IsOptional()
-  @IsUUID()
+  @IsString() // ✅ MUDANÇA AQUI: IsString() em vez de IsUUID()
   userId?: string;
 }
