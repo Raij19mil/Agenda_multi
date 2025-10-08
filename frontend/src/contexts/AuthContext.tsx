@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { User, LoginRequest, LoginResponse } from '../types'
+import type { User, LoginRequest, LoginResponse } from '../types'
 import { authService } from '../services/authService'
 import toast from 'react-hot-toast'
 
@@ -76,15 +76,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (credentials: LoginRequest) => {
     try {
       setLoading(true)
-      const response: LoginResponse = await authService.login(credentials)
+      const response = await authService.login(credentials)
       
-      // Salvar token e usuário
+      // Salvar token
       localStorage.setItem('token', response.access_token)
-      localStorage.setItem('user', JSON.stringify(response.user))
       
-      setUser(response.user)
+      // Buscar dados do usuário após login
+      try {
+        const userData = await authService.getProfile()
+        localStorage.setItem('user', JSON.stringify(userData))
+        setUser(userData)
+        console.log('Login bem-sucedido. Usuário:', userData)
+      } catch (profileError) {
+        console.error('Erro ao buscar perfil após login:', profileError)
+        // Se falhar ao buscar perfil, fazer logout
+        localStorage.removeItem('token')
+        throw new Error('Erro ao carregar dados do usuário')
+      }
       
-      console.log('Login bem-sucedido. Usuário:', response.user)
       toast.success('Login realizado com sucesso!')
     } catch (error: any) {
       console.error('Erro no login:', error)

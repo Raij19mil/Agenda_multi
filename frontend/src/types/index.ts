@@ -76,9 +76,10 @@ export interface LoginRequest {
   password: string
 }
 
+// Ajustado para refletir o que o backend realmente retorna
 export interface LoginResponse {
   access_token: string
-  user: User
+  user?: User // Opcional porque o backend não retorna sempre
 }
 
 export interface CreateClientRequest {
