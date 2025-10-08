@@ -107,10 +107,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.refreshToken()
       localStorage.setItem('token', response.access_token)
       
-      // Atualizar dados do usuário também
-      if (response.user) {
-        localStorage.setItem('user', JSON.stringify(response.user))
-        setUser(response.user)
+      // Buscar dados atualizados do usuário após renovar o token
+      try {
+        const userData = await authService.getProfile()
+        localStorage.setItem('user', JSON.stringify(userData))
+        setUser(userData)
+      } catch (profileError) {
+        console.error('Erro ao atualizar perfil após refresh:', profileError)
+        // Manter o usuário atual se falhar
       }
     } catch (error) {
       console.error('Erro ao renovar token:', error)
