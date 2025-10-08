@@ -33,13 +33,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initAuth = async () => {
       try {
         const token = localStorage.getItem('token')
+        const storedUser = localStorage.getItem('user')
+        
         if (token) {
-          const userData = await authService.getProfile()
-          setUser(userData)
+          if (storedUser) {
+            // Tentar usar o usuário do localStorage primeiro
+            try {
+              const parsedUser = JSON.parse(storedUser)
+              setUser(parsedUser)
+            } catch (e) {
+              console.error('Erro ao parsear usuário do localStorage:', e)
+            }
+          }
+          
+          // Buscar dados atualizados do backend
+          try {
+            const userData = await authService.getProfile()
+            setUser(userData)
+            localStorage.setItem('user', JSON.stringify(userData))
+          } catch (error) {
+            console.error('Erro ao carregar perfil:', error)
+            // Se falhar, manter o usuário do localStorage se existir
+            if (!storedUser) {
+              localStorage.removeItem('token')
+              setUser(null)
+            }
+          }
         }
       } catch (error) {
-        console.error('Erro ao carregar perfil:', error)
+        console.error('Erro na inicialização da autenticação:', error)
         localStorage.removeItem('token')
+        localStorage.removeItem('user')
         setUser(null)
       } finally {
         setLoading(false)
@@ -53,10 +77,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true)
       const response: LoginResponse = await authService.login(credentials)
+      
+      // Salvar token e usuário
       localStorage.setItem('token', response.access_token)
+      localStorage.setItem('user', JSON.stringify(response.user))
+      
       setUser(response.user)
+      
+      console.log('Login bem-sucedido. Usuário:', response.user)
       toast.success('Login realizado com sucesso!')
     } catch (error: any) {
+      console.error('Erro no login:', error)
       toast.error(error.response?.data?.message || 'Erro ao fazer login')
       throw error
     } finally {
@@ -66,6 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
     setUser(null)
     toast.success('Logout realizado com sucesso!')
   }
@@ -74,7 +106,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authService.refreshToken()
       localStorage.setItem('token', response.access_token)
+      
+      // Atualizar dados do usuário também
+      if (response.user) {
+        localStorage.setItem('user', JSON.stringify(response.user))
+        setUser(response.user)
+      }
     } catch (error) {
+      console.error('Erro ao renovar token:', error)
       logout()
     }
   }
