@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import type { User, LoginRequest, LoginResponse } from '../types'
+import type { User, LoginRequest } from '../types'
 import { authService } from '../services/authService'
 import toast from 'react-hot-toast'
 
@@ -139,5 +139,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshToken,
   }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
