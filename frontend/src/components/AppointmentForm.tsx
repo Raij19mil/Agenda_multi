@@ -89,6 +89,16 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
     e.preventDefault()
     
     // Validações
+    if (!title.trim()) {
+      alert('O título é obrigatório.')
+      return
+    }
+
+    if (!clientId) {
+      alert('Selecione um cliente.')
+      return
+    }
+
     if (!userId) {
       alert('Selecione um usuário responsável.')
       return
@@ -101,16 +111,45 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
       return
     }
 
+    // Verificar se o clientId está na lista de clientes
+    const selectedClient = clients.find(c => c.id === clientId)
+    if (!selectedClient) {
+      alert('Cliente inválido. Por favor, selecione um cliente da lista.')
+      return
+    }
+
+    if (!startTime || !endTime) {
+      alert('As datas de início e fim são obrigatórias.')
+      return
+    }
+
     // Validar datas
     const start = new Date(startTime)
     const end = new Date(endTime)
+    
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      alert('Datas inválidas. Por favor, verifique os valores.')
+      return
+    }
     
     if (end <= start) {
       alert('A data/hora de fim deve ser posterior à data/hora de início.')
       return
     }
 
-    onSave({ title, description, clientId, userId, startTime, endTime, status })
+    // Converter para ISO 8601 completo
+    const appointmentData = {
+      title: title.trim(),
+      description: description?.trim() || '',
+      clientId,
+      userId,
+      startTime: start.toISOString(),
+      endTime: end.toISOString(),
+      status
+    }
+
+    console.log('Enviando dados do agendamento:', appointmentData)
+    onSave(appointmentData)
   }
 
   return (
