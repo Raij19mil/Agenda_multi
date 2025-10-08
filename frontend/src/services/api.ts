@@ -15,6 +15,8 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+    } else {
+      console.warn('Token não encontrado no localStorage')
     }
     return config
   },
@@ -28,9 +30,34 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      console.error('Erro 401: Não autorizado. Token inválido ou expirado.')
+      
+      // Limpar token inválido
       localStorage.removeItem('token')
-      // Não redirecionar aqui, deixar o AuthContext tratar
+      localStorage.removeItem('user')
+      
+      // Redirecionar para login se não estiver na página de login
+      if (!window.location.pathname.includes('/login')) {
+        alert('Sessão expirada. Por favor, faça login novamente.')
+        window.location.href = '/login'
+      }
     }
+    
+    // Log detalhado para debug
+    if (error.response) {
+      console.error('Erro na API:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        url: error.config?.url,
+        method: error.config?.method,
+        data: error.response.data
+      })
+    } else if (error.request) {
+      console.error('Erro de rede: Sem resposta do servidor', error.request)
+    } else {
+      console.error('Erro ao configurar requisição:', error.message)
+    }
+    
     return Promise.reject(error)
   }
 )
