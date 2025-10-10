@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import TenantForm from '../components/TenantForm'
-import { Plus, Search, Edit, Trash2, Building2, Users, Calendar } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Building2, Users, Calendar, LogIn } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { tenantService } from '../services/tenantService'
+import { useAuth } from '../contexts/AuthContext'
 
 const Tenants: React.FC = () => {
+  const { user, switchTenant } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editingTenant, setEditingTenant] = useState<any>(null)
@@ -62,6 +64,19 @@ const Tenants: React.FC = () => {
     }
   }
 
+  const handleAccessTenant = async (tenant: any) => {
+    if (window.confirm(`Deseja acessar o tenant "${tenant.name}"? A página será recarregada.`)) {
+      try {
+        await switchTenant(tenant.id)
+        toast.success(`Agora você está acessando: ${tenant.name}`)
+        // Recarregar para aplicar o novo tema
+        window.location.reload()
+      } catch (error) {
+        toast.error('Erro ao trocar de tenant')
+      }
+    }
+  }
+
   function handleSaveTenant(data: any) {
     if (editingTenant) {
       updateMutation.mutate({ id: editingTenant.id, data })
@@ -89,6 +104,8 @@ const Tenants: React.FC = () => {
     }
     return texts[theme as keyof typeof texts] || theme
   }
+
+  const canAccessTenant = user?.role === 'SUPERADMIN'
 
   if (isLoading) {
     return (
@@ -139,11 +156,20 @@ const Tenants: React.FC = () => {
           <div key={tenant.id} className="bg-surface rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center">
-                <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                  tenant.id === user?.tenantId ? 'bg-green-600' : 'bg-primary'
+                }`}>
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-lg font-semibold text-text">{tenant.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-text">{tenant.name}</h3>
+                    {tenant.id === user?.tenantId && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-medium">
+                        Atual
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-text-secondary">/{tenant.slug}</p>
                 </div>
               </div>
@@ -178,7 +204,7 @@ const Tenants: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-3">
               <span
                 className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                   tenant.isActive
@@ -195,17 +221,36 @@ const Tenants: React.FC = () => {
                     setShowForm(true)
                   }}
                   className="text-primary hover:text-primary-dark"
+                  title="Editar tenant"
                 >
                   <Edit className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleDelete(tenant.id)}
                   className="text-error hover:text-error-dark"
+                  title="Excluir tenant"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
+
+            {/* Botão Acessar Tenant - Apenas para SUPERADMIN */}
+            {canAccessTenant && tenant.isActive && tenant.id !== user?.tenantId && (
+              <button
+                onClick={() => handleAccessTenant(tenant)}
+                className="w-full btn-primary flex items-center justify-center text-sm py-2"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Acessar Tenant
+              </button>
+            )}
+
+            {tenant.id === user?.tenantId && (
+              <div className="w-full text-center text-sm text-green-600 font-medium py-2 bg-green-50 rounded">
+                Você está neste tenant
+              </div>
+            )}
           </div>
         ))}
       </div>

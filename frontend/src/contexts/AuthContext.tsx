@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (credentials: LoginRequest) => Promise<void>
   logout: () => void
   refreshToken: () => Promise<void>
+  switchTenant: (tenantId: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -131,12 +132,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
+  const switchTenant = async (newTenantId: string) => {
+    try {
+      if (!user) {
+        throw new Error('Usuário não está logado')
+      }
+
+      // Verificar se é SUPERADMIN
+      if (user.role !== 'SUPERADMIN') {
+        throw new Error('Apenas SUPERADMIN pode trocar de tenant')
+      }
+
+      // Atualizar o tenantId do usuário localmente
+      const updatedUser = { ...user, tenantId: newTenantId }
+      
+      // Salvar no localStorage
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+      
+      // Atualizar o estado
+      setUser(updatedUser)
+      
+      console.log('Tenant alterado para:', newTenantId)
+      
+    } catch (error: any) {
+      console.error('Erro ao trocar tenant:', error)
+      throw error
+    }
+  }
+
   const value = {
     user,
     loading,
     login,
     logout,
     refreshToken,
+    switchTenant,
   }
 
   return (
