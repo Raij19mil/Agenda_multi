@@ -1,0 +1,30 @@
+services:
+  # Frontend (React)
+  - type: web
+    name: agenda-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    
+    # IMPORTANTE: Redirecionar todas as rotas para index.html
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    
+    # Variáveis de ambiente (opcional)
+    envVars:
+      - key: VITE_API_URL
+        value: https://agenda-multi.onrender.com
+    
+    # Headers de segurança
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate

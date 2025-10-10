@@ -171,6 +171,11 @@ const Tenants: React.FC = () => {
                     )}
                   </div>
                   <p className="text-sm text-text-secondary">/{tenant.slug}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200">
+                      ID: {tenant.id}
+                    </span>
+                  </div>
                 </div>
               </div>
               <span
