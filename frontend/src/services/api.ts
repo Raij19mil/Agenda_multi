@@ -37,9 +37,10 @@ api.interceptors.response.use(
       localStorage.removeItem('user')
       
       // Redirecionar para login se não estiver na página de login
-      if (!window.location.pathname.includes('/login')) {
+      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/auth')) {
         alert('Sessão expirada. Por favor, faça login novamente.')
-        window.location.href = '/login'
+        // Recarregar a página para forçar o componente de login
+        window.location.reload()
       }
     }
     
@@ -53,7 +54,13 @@ api.interceptors.response.use(
         data: error.response.data
       })
     } else if (error.request) {
-      console.error('Erro de rede: Sem resposta do servidor', error.request)
+      console.error('Erro de rede: Sem resposta do servidor', {
+        url: error.config?.url,
+        baseURL: error.config?.baseURL
+      })
+      
+      // Não remover token em caso de erro de rede
+      // Pode ser problema temporário de conexão
     } else {
       console.error('Erro ao configurar requisição:', error.message)
     }
