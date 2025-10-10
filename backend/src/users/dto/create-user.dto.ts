@@ -39,7 +39,7 @@ export class CreateUserDto {
     description: 'ID do tenant (obrigatório para ADMIN e AGENT)',
     example: 'uuid-do-tenant'
   })
-  @IsUUID()
+  @IsString()
   tenantId: string;
 
   @ApiProperty({ 
