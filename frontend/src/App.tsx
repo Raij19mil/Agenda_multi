@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 
 // Pages
 import Login from './pages/Login'
+import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Clients from './pages/Clients'
 import Appointments from './pages/Appointments'
@@ -32,7 +33,13 @@ function App() {
   }
 
   if (!user) {
-    return <Login />
+    return (
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    )
   }
 
   return (

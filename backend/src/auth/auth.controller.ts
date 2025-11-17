@@ -40,7 +40,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Perfil obtido com sucesso' })
   @ApiResponse({ status: 401, description: 'Token inválido' })
   async getProfile(@Request() req) {
-    return req.user;
+    return this.authService.getProfile(req.user.id);
   }
 
   @Post('refresh')
@@ -48,13 +48,8 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Renovar token de acesso' })
   @ApiResponse({ status: 200, description: 'Token renovado com sucesso' })
+  @ApiResponse({ status: 401, description: 'Token inválido' })
   async refreshToken(@Request() req) {
-    return this.authService.refreshToken(req.user);
-  }
-  @Post('refresh')
-  @ApiOperation({ summary: 'Renovar token JWT' })
-  @ApiResponse({ status: 200, description: 'Token renovado com sucesso' })
-  async refresh(@Request() req) {
     return this.authService.refreshToken(req.user);
   }
 }

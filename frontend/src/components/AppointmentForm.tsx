@@ -51,8 +51,28 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
       setDescription(appointment.description || '')
       setClientId(appointment.clientId || '')
       setUserId(appointment.userId || '')
-      setStartTime(appointment.startTime || '')
-      setEndTime(appointment.endTime || '')
+      
+      // Converter ISO string para datetime-local format (YYYY-MM-DDTHH:mm)
+      if (appointment.startTime) {
+        const startDate = new Date(appointment.startTime)
+        const localStartTime = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 16)
+        setStartTime(localStartTime)
+      } else {
+        setStartTime('')
+      }
+      
+      if (appointment.endTime) {
+        const endDate = new Date(appointment.endTime)
+        const localEndTime = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 16)
+        setEndTime(localEndTime)
+      } else {
+        setEndTime('')
+      }
+      
       setStatus(appointment.status || 'SCHEDULED')
     } else {
       setTitle('')
@@ -67,13 +87,61 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ appointment, onClose,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Regex simples para validar UUID v4
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(userId)) {
-      alert('Selecione um usuário responsável válido.')
+    
+    // Validações
+    if (!title.trim()) {
+      alert('Por favor, preencha o título do agendamento.')
       return
     }
-    onSave({ title, description, clientId, userId, startTime, endTime, status })
+
+    if (!clientId) {
+      alert('Por favor, selecione um cliente.')
+      return
+    }
+
+    // Regex simples para validar UUID v4
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!userId || !uuidRegex.test(userId)) {
+      alert('Por favor, selecione um usuário responsável válido.')
+      return
+    }
+
+    if (!startTime || !endTime) {
+      alert('Por favor, preencha a data e hora de início e fim.')
+      return
+    }
+
+    // Converter datetime-local para ISO string
+    // O input datetime-local retorna formato "YYYY-MM-DDTHH:mm"
+    // Precisamos converter para ISO string (UTC)
+    const startDate = new Date(startTime)
+    const endDate = new Date(endTime)
+
+    // Validar se as datas são válidas
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      alert('Por favor, informe datas e horários válidos.')
+      return
+    }
+
+    // Validar se o horário de fim é depois do início
+    if (endDate <= startDate) {
+      alert('O horário de fim deve ser posterior ao horário de início.')
+      return
+    }
+
+    // Converter para ISO string
+    const startTimeISO = startDate.toISOString()
+    const endTimeISO = endDate.toISOString()
+
+    onSave({ 
+      title: title.trim(), 
+      description: description?.trim() || undefined, 
+      clientId, 
+      userId, 
+      startTime: startTimeISO, 
+      endTime: endTimeISO, 
+      status 
+    })
   }
 
   return (

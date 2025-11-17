@@ -28,15 +28,17 @@ export class RegisterDto {
   password: string;
 
   @ApiProperty({ 
-    description: 'Papel do usuário no sistema',
+    description: 'Papel do usuário no sistema (padrão: AGENT)',
     enum: UserRole,
-    example: UserRole.AGENT
+    example: UserRole.AGENT,
+    required: false
   })
+  @IsOptional()
   @IsEnum(UserRole)
-  role: UserRole;
+  role?: UserRole;
 
   @ApiProperty({ 
-    description: 'ID do tenant (obrigatório para ADMIN e AGENT)',
+    description: 'ID do tenant (obrigatório para ADMIN e AGENT, mas pode ser opcional para registro público)',
     example: 'uuid-do-tenant',
     required: false
   })

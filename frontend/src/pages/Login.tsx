@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 
 const Login: React.FC = () => {
   const { login } = useAuth()
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -97,7 +99,7 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-3">
             <button
               type="submit"
               disabled={loading}
@@ -109,6 +111,20 @@ const Login: React.FC = () => {
                 'Entrar'
               )}
             </button>
+            
+            <div className="text-center">
+              <p className="text-sm text-text-secondary">
+                Não tem uma conta?{' '}
+                <button
+                  type="button"
+                  onClick={() => navigate('/register')}
+                  className="text-primary hover:text-primary-dark font-medium"
+                  disabled={loading}
+                >
+                  Criar conta
+                </button>
+              </p>
+            </div>
           </div>
         </form>
       </div>
