@@ -9,6 +9,9 @@ interface RegisterData {
   email: string
   password: string
   confirmPassword: string
+  tenantMode: 'REQUEST_ACCESS' | 'CREATE_TENANT'
+  tenantName: string
+  tenantSlug: string
 }
 
 const Register: React.FC = () => {
@@ -18,6 +21,9 @@ const Register: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    tenantMode: 'REQUEST_ACCESS',
+    tenantName: '',
+    tenantSlug: '',
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -47,16 +53,50 @@ const Register: React.FC = () => {
       return
     }
 
+    if (formData.tenantMode === 'CREATE_TENANT') {
+      if (!formData.tenantName.trim()) {
+        toast.error('Informe o nome do seu espaço (tenant)')
+        return
+      }
+      if (!formData.tenantSlug.trim()) {
+        toast.error('Informe um endereço (slug) para o seu espaço')
+        return
+      }
+    }
+
+    if (formData.tenantMode === 'REQUEST_ACCESS') {
+      if (!formData.tenantSlug.trim()) {
+        toast.error('Informe o código/endereço do espaço ao qual deseja acesso')
+        return
+      }
+    }
+
     setLoading(true)
     
     try {
-      await authService.register({
+      const payload: any = {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password,
-      })
-      
-      toast.success('Conta criada com sucesso! Faça login para continuar.')
+        mode: formData.tenantMode,
+      }
+
+      const normalizedSlug = formData.tenantSlug.trim().toLowerCase()
+
+      if (formData.tenantMode === 'CREATE_TENANT') {
+        payload.tenantName = formData.tenantName.trim()
+        payload.tenantSlug = normalizedSlug
+      } else {
+        payload.tenantSlug = normalizedSlug
+      }
+
+      await authService.register(payload)
+
+      if (formData.tenantMode === 'CREATE_TENANT') {
+        toast.success('Conta e espaço criados com sucesso! Faça login para continuar.')
+      } else {
+        toast.success('Pedido de acesso enviado! Aguarde a aprovação do administrador do espaço.')
+      }
       navigate('/login')
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Erro ao criar conta. Tente novamente.'

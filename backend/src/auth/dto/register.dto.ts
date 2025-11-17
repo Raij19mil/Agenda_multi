@@ -2,6 +2,11 @@ import { IsEmail, IsString, MinLength, IsEnum, IsOptional, IsUUID } from 'class-
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 
+export enum RegisterMode {
+  CREATE_TENANT = 'CREATE_TENANT',
+  REQUEST_ACCESS = 'REQUEST_ACCESS',
+}
+
 export class RegisterDto {
   @ApiProperty({ 
     description: 'Nome do usuário',
@@ -45,4 +50,33 @@ export class RegisterDto {
   @IsOptional()
   @IsUUID()
   tenantId?: string;
+
+  @ApiProperty({
+    description: 'Modo de registro: criar novo tenant ou pedir acesso a um existente',
+    enum: RegisterMode,
+    example: RegisterMode.CREATE_TENANT,
+    required: false,
+    default: RegisterMode.REQUEST_ACCESS,
+  })
+  @IsOptional()
+  @IsEnum(RegisterMode)
+  mode?: RegisterMode;
+
+  @ApiProperty({
+    description: 'Nome do tenant a ser criado (obrigatório quando mode = CREATE_TENANT)',
+    example: 'Minha Barbearia',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  tenantName?: string;
+
+  @ApiProperty({
+    description: 'Slug do tenant (para criar ou pedir acesso, ex: minha-barbearia)',
+    example: 'minha-barbearia',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  tenantSlug?: string;
 }
