@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/authService'
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, Building2, Link } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface RegisterData {
@@ -12,6 +12,7 @@ interface RegisterData {
   tenantMode: 'REQUEST_ACCESS' | 'CREATE_TENANT'
   tenantName: string
   tenantSlug: string
+  tenantId: string
 }
 
 const Register: React.FC = () => {
@@ -24,10 +25,18 @@ const Register: React.FC = () => {
     tenantMode: 'REQUEST_ACCESS',
     tenantName: '',
     tenantSlug: '',
+    tenantId: '',
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const normalizeSlug = (value: string) =>
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,20 +62,23 @@ const Register: React.FC = () => {
       return
     }
 
+    let normalizedSlug = ''
+
     if (formData.tenantMode === 'CREATE_TENANT') {
       if (!formData.tenantName.trim()) {
         toast.error('Informe o nome do seu espaço (tenant)')
         return
       }
-      if (!formData.tenantSlug.trim()) {
-        toast.error('Informe um endereço (slug) para o seu espaço')
+      normalizedSlug = normalizeSlug(formData.tenantSlug)
+      if (!normalizedSlug) {
+        toast.error('Informe um endereço (slug) válido para o seu espaço')
         return
       }
     }
 
     if (formData.tenantMode === 'REQUEST_ACCESS') {
-      if (!formData.tenantSlug.trim()) {
-        toast.error('Informe o código/endereço do espaço ao qual deseja acesso')
+      if (!formData.tenantId.trim()) {
+        toast.error('Informe o ID do espaço ao qual deseja acesso')
         return
       }
     }
@@ -81,13 +93,11 @@ const Register: React.FC = () => {
         mode: formData.tenantMode,
       }
 
-      const normalizedSlug = formData.tenantSlug.trim().toLowerCase()
-
       if (formData.tenantMode === 'CREATE_TENANT') {
         payload.tenantName = formData.tenantName.trim()
         payload.tenantSlug = normalizedSlug
       } else {
-        payload.tenantSlug = normalizedSlug
+        payload.tenantId = formData.tenantId.trim()
       }
 
       await authService.register(payload)
@@ -111,6 +121,24 @@ const Register: React.FC = () => {
       ...formData,
       [e.target.name]: e.target.value,
     })
+  }
+
+  const handleTenantModeChange = (mode: 'REQUEST_ACCESS' | 'CREATE_TENANT') => {
+    setFormData((prev) => ({
+      ...prev,
+      tenantMode: mode,
+      tenantId: mode === 'REQUEST_ACCESS' ? prev.tenantId : '',
+      tenantName: mode === 'CREATE_TENANT' ? prev.tenantName : '',
+      tenantSlug: mode === 'CREATE_TENANT' ? prev.tenantSlug : '',
+    }))
+  }
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const normalized = normalizeSlug(e.target.value)
+    setFormData((prev) => ({
+      ...prev,
+      tenantSlug: normalized,
+    }))
   }
 
   return (
@@ -232,6 +260,124 @@ const Register: React.FC = () => {
                 </button>
               </div>
             </div>
+          </div>
+
+          <div className="space-y-4 rounded-xl border border-border p-4">
+            <div>
+              <p className="text-lg font-semibold text-text">Espaço (Tenant)</p>
+              <p className="text-sm text-text-secondary">
+                Escolha entre criar um novo espaço ou se afiliar a um existente.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => handleTenantModeChange('REQUEST_ACCESS')}
+                className={`flex items-center gap-3 rounded-lg border p-3 text-left transition ${
+                  formData.tenantMode === 'REQUEST_ACCESS'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border text-text'
+                }`}
+              >
+                <Link className="h-5 w-5" />
+                <div>
+                  <p className="font-semibold">Entrar em um existente</p>
+                  <p className="text-sm text-text-secondary">
+                    Cole o ID para solicitar acesso.
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleTenantModeChange('CREATE_TENANT')}
+                className={`flex items-center gap-3 rounded-lg border p-3 text-left transition ${
+                  formData.tenantMode === 'CREATE_TENANT'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border text-text'
+                }`}
+              >
+                <Building2 className="h-5 w-5" />
+                <div>
+                  <p className="font-semibold">Criar novo espaço</p>
+                  <p className="text-sm text-text-secondary">
+                    Configure e seja o administrador.
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            {formData.tenantMode === 'REQUEST_ACCESS' && (
+              <div>
+                <label htmlFor="tenantId" className="form-label">
+                  ID do Tenant existente
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Link className="h-5 w-5 text-text-secondary" />
+                  </div>
+                  <input
+                    id="tenantId"
+                    name="tenantId"
+                    type="text"
+                    className="form-input pl-10"
+                    placeholder="Cole o ID fornecido pelo administrador"
+                    value={formData.tenantId}
+                    onChange={handleChange}
+                  />
+                </div>
+                <p className="mt-1 text-xs text-text-secondary">
+                  O administrador do espaço pode compartilhar esse ID com você.
+                </p>
+              </div>
+            )}
+
+            {formData.tenantMode === 'CREATE_TENANT' && (
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="tenantName" className="form-label">
+                    Nome do novo Tenant
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Building2 className="h-5 w-5 text-text-secondary" />
+                    </div>
+                    <input
+                      id="tenantName"
+                      name="tenantName"
+                      type="text"
+                      className="form-input pl-10"
+                      placeholder="Ex: Espaço Premium"
+                      value={formData.tenantName}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="tenantSlug" className="form-label">
+                    Endereço (slug)
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Link className="h-5 w-5 text-text-secondary" />
+                    </div>
+                    <input
+                      id="tenantSlug"
+                      name="tenantSlug"
+                      type="text"
+                      className="form-input pl-10"
+                      placeholder="ex: espaco-premium"
+                      value={formData.tenantSlug}
+                      onChange={handleSlugChange}
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-text-secondary">
+                    Use letras e números. Ex: espaco-premium.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-3">
